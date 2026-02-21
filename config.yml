@@ -1,4 +1,23 @@
 SLEEP_TIME: 2
+  Description: Sleep time between API call
+
 BASE_URL: https://api.starlingbank.com
+    Description: Base URL for Starling API
+
 LOG_FILE: starling
 LOG_LEVEL: DEBUG
+
+
+Notifications:
+  minimum_balance: 1000
+  
+  daily_delta: 7
+  
+
+auto_transfers:
+  weekly_allowance: 110
+    frequency: weekly
+    day: Sun
+  daily_allowance: 50
+    frequency: daily
+    day: Mon

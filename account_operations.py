@@ -23,7 +23,6 @@ class AccountOperations:
     
     def account_feed(self, account_id,days_back: int =1):
         endpoint = f"/api/v2/feed/account/{account_id}/settled-transactions-between"
-        
         start_date = datetime.now()- timedelta(days=days_back)
         end_date = datetime.now()
         

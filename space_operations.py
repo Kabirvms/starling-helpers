@@ -45,3 +45,4 @@ def space_name_to_uuid(account, space_name):
             else:
                 logger.error(f"Goal not found: {goal_name}")  
                 return None
+                
