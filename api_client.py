@@ -1,33 +1,14 @@
-import os
-import logging
-import yaml
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
-def load_config(path: str = "config.yml") -> dict:
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
-
-config = load_config()
-LOG_FILE = config["LOG_FILE"]
-SLEEP_TIME = config["SLEEP_TIME"]
-BASE_URL = config["BASE_URL"]
-
-
-logging.basicConfig(filename=LOG_FILE, encoding="utf-8", level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+from tools import env 
 
 
 def _build_session() -> requests.Session:
     """Create a requests Session with automatic retries for transient errors."""
     session = requests.Session()
     retry = Retry(
-        total=retry,
+        total=3,
         backoff_factor=1,
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=["GET", "POST", "PUT"],
@@ -42,9 +23,9 @@ class StarlingClient:
     """Thin wrapper around the Starling Bank API v2."""
 
     def __init__(self):
-        self.access_token = os.getenv("ACCESS_TOKEN")
-        self.account_uid = os.getenv("ACCOUNT_UUID")
-        self.base_url = os.getenv("BASE_URL")
+        self.access_token = env("ACCESS_TOKEN")
+        self.account_uid = env("ACCOUNT_UUID")
+        self.base_url = env("BASE_URL")
 
     @property
     def _headers(self) -> dict:
@@ -71,7 +52,7 @@ class StarlingClient:
             ConnectionError: 5xx Server Error.
             Exception: Any other unexpected status code.
         """
-        url = f"{self.base_url}/account/{self.account_uid}/{endpoint}"
+        url = f"{self.base_url}/account/{self.account_uid}{endpoint}"
         response = _session.request(method, url, headers=self._headers, json=body)
 
         match response.status_code:

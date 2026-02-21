@@ -19,3 +19,4 @@ LOG_FILE = config["LOG_FILE"]
 SLEEP_TIME = config["SLEEP_TIME"]
 logging.basicConfig(filename=LOG_FILE, encoding="utf-8", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
