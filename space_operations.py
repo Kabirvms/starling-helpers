@@ -9,7 +9,7 @@ def savings_goal_transfer(access_token,space_name,amount,direction):
     savings_goal_uuid = get_savings_goal_uuid(account_uuid, saving_goal_name)
     amount_mini_units = amount * 100
     endpoint = f"savings-goals/{savings_goal_uuid}/{direction}-money/{transfer_uuid}"
-    
+
     # Prepare request body
     body = {
         "amount": {
@@ -26,7 +26,7 @@ def space_name_to_uuid(account, space_name):
     """Converts from a space name to uuid
     args:
         account (str): The account ID
-        space_name (str): The name of the goal   
+        space_name (str): The name of the goal
     """
     data = starling_call(
         account=account,
@@ -37,12 +37,11 @@ def space_name_to_uuid(account, space_name):
     if data == False:
         logger.error("")
         #send_notification()
-        
+
     else:
         for goal in data.get("savingsGoalList", []):
             if goal["name"].lower() == space_name.lower():
                 return goal["savingsGoalUid"]
             else:
-                logger.error(f"Goal not found: {goal_name}")  
+                logger.error(f"Goal not found: {goal_name}")
                 return None
-                

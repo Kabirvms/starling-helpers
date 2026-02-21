@@ -2,7 +2,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from tools import env, config
+from tools import config, env
 
 
 def _build_session() -> requests.Session:
@@ -36,11 +36,19 @@ class StarlingClient:
             "Content-Type": "application/json",
         }
 
-    def __call__(self, endpoint: str, body: dict | None = None,params: dict | None = None, method: str = "GET"):
+    def __call__(
+        self,
+        endpoint: str,
+        body: dict | None = None,
+        params: dict | None = None,
+        method: str = "GET",
+    ):
         """Make a call to the Starling API."""
-    
+
         url = f"{self.base_url}{endpoint}"
-        response = _session.request(method, url, headers=self._headers, json=body, params=params)
+        response = _session.request(
+            method, url, headers=self._headers, json=body, params=params
+        )
 
         match response.status_code:
             case 200:
@@ -80,9 +88,7 @@ class StarlingClient:
                 )
 
             case _:
-                print(
-                    "Unexpected status %s: %s", response.status_code, response.text
-                )
+                print("Unexpected status %s: %s", response.status_code, response.text)
                 raise Exception(
                     f"Unexpected error {response.status_code}: {response.text}"
                 )
