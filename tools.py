@@ -1,5 +1,10 @@
 import os
 import yaml
+import logging
+
+logging.basicConfig(filename=config("LOG_FILE"), encoding="utf-8", level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 def env(variable_name: str) -> str:
     variable = os.environ.get(variable_name)
