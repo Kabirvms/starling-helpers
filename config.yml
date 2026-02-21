@@ -1,4 +1,0 @@
-SLEEP_TIME: 2
-BASE_URL: https://api.starlingbank.com
-LOG_FILE: starling
-LOG_LEVEL: DEBUG
