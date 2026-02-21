@@ -2,3 +2,4 @@ config.yml
 .env
 starling.log
 __pycashe__
+.DS_Store

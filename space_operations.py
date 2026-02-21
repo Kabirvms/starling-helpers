@@ -1,47 +1,34 @@
+from tools import env
+from api_client import StarlingClient
 
+class SpaceOperations:
+    def __init__(self,access_token):
+        self.api_client = StarlingClient(access_token)
 
-
-
-def savings_goal_transfer(access_token,space_name,amount,direction):
-    # Generate a transfer UUID
-    transfer_uuid = str(uuid.uuid4())
-    account_uuid = os.environ.get("STARLING_ACCOUNT_ID")
-    savings_goal_uuid = get_savings_goal_uuid(account_uuid, saving_goal_name)
-    amount_mini_units = amount * 100
-    endpoint = f"savings-goals/{savings_goal_uuid}/{direction}-money/{transfer_uuid}"
-
-    # Prepare request body
-    body = {
-        "amount": {
-            "currency": "GBP",
-            "minorUnits": amount_mini_units
+    def savings_goal_transfer(self,account_uuid,space_name,amount,direction):
+        transfer_uuid = str(uuid.uuid4())
+        savings_goal_uuid = get_savings_goal_uuid(account_uuid, space_name)
+        amount_mini_units = amount * 100
+        endpoint = f"/savings-goals/{savings_goal_uuid}/{direction}-money/{transfer_uuid}"
+        payload = {
+            "amount": {
+                "currency": "GBP",
+                "minorUnits": amount_mini_units
+            }
         }
-    }
-    status =starling_call(account_uuid, endpoint, body, method="POST")
-    time.sleep(2)
-    if status == False:
-        #send_notification()
+        response = self.api_client(endpoint, body=payload, method="POST")
+        return response
 
-def space_name_to_uuid(account, space_name):
-    """Converts from a space name to uuid
-    args:
-        account (str): The account ID
-        space_name (str): The name of the goal
-    """
-    data = starling_call(
-        account=account,
-        endpoint="savings-goals",
-        body=None,
-        method="GET"
-    )
-    if data == False:
-        logger.error("")
-        #send_notification()
+    def space_name_to_uuid(self,account_uuid, space_name):
+        endpoint = f"/api/v2/account/{account_uuid}/savings-goals"
+        response = self.api_client(endpoint)
+        for index in range(response)
+            if space_name == response[index]["name"]
+                return response[index]["savingsGoalUid"]
 
-    else:
-        for goal in data.get("savingsGoalList", []):
-            if goal["name"].lower() == space_name.lower():
-                return goal["savingsGoalUid"]
-            else:
-                logger.error(f"Goal not found: {goal_name}")
-                return None
+if __name__ == "__main__":
+#    add tests
+        
+        
+    
+               

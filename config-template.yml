@@ -1,15 +1,15 @@
+#The amount of time between making api calls
 API_COOLDOWN: 2
 
+#The starling bank base api url
 BASE_URL: https://api.starlingbank.com
 
-LOG_FILE: starling
-
-LOG_LEVEL: DEBUG
-    
+#The notification settings    
 notifications:
   minimum_balance: 1000
   daily_delta: 7
-    
+
+#The transfer settings
 auto_transfers:
   weekly_allowance:
     amount: 110

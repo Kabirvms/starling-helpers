@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
-
 from api_client import StarlingClient
-
+from tools import env
 
 class AccountOperations:
-    def __init__(self):
-        self.api_client = StarlingClient()
+    def __init__(self,access_token):
+        self.api_client = StarlingClient(access_token)
 
     def choose_account(self):
         endpoint = "/api/v2/accounts"
@@ -36,7 +35,8 @@ class AccountOperations:
 
 
 if __name__ == "__main__":
-    account_ops = AccountOperations()
+    access_token = env("ACCESS_TOKEN")
+    account_ops = AccountOperations(access_token)
     account = account_ops.choose_account()
     balance = account_ops.account_balance(account["accountUid"])
     feed = account_ops.account_feed(account["accountUid"])

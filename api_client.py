@@ -1,6 +1,7 @@
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import time
 
 from tools import config, env
 
@@ -25,8 +26,8 @@ _session = _build_session()
 class StarlingClient:
     """Thin wrapper around the Starling Bank API v2."""
 
-    def __init__(self):
-        self.access_token = env("ACCESS_TOKEN")
+    def __init__(self,access_token):
+        self.access_token = access_token
         self.base_url = config("BASE_URL")
 
     @property
@@ -46,6 +47,7 @@ class StarlingClient:
         """Make a call to the Starling API."""
 
         url = f"{self.base_url}{endpoint}"
+        time.sleep(config("API_COOLDOWN"))
         response = _session.request(
             method, url, headers=self._headers, json=body, params=params
         )
