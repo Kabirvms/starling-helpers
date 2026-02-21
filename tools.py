@@ -25,7 +25,12 @@ def config(variable_name: str) -> str:
     if variable is None:
         raise KeyError(f"Missing required config key: {variable_name}")
     return variable
-    
+
+
+def load_config_directory(path: str = "config.yml") -> dict:
+    with open(path, "r") as f:
+        config = yaml.safe_load(f)
+    return config    
     
 if __name__ == "__main__":
     print(env("ACCESS_TOKEN"))
