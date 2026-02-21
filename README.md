@@ -1,3 +1,5 @@
-# starling-helpers
-A simple set of scripts to manage spending and send usefull alerts using the starling bank api
+# Starling Helpers
+This project is made up of a simple set of scripts that are can be configured by a signle `config.yml` file.
+This project is not affiliated or endorsed by Starling Bank.
+
 NOTE UNDER HEAVY DEVELOPMENT
