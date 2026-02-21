@@ -1,15 +1,19 @@
 import os
 import yaml
-import logging
 
-logging.basicConfig(filename=config("LOG_FILE"), encoding="utf-8", level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
+def _load_dotenv(path=".env"):
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
 
 def env(variable_name: str) -> str:
+    _load_dotenv()
     variable = os.environ.get(variable_name)
     if variable is None:
-        logger.error("Please run setup.py or add the env for %s", variable_name)
         raise EnvironmentError(f"Missing required environment variable: {variable_name}")
     return variable
         
@@ -19,6 +23,10 @@ def config(variable_name: str) -> str:
         raise ValueError(f"config.yml is malformed — expected a dict, got {type(data).__name__}: {data!r}")
     variable = data.get(variable_name)
     if variable is None:
-        logger.error("Please run setup.py or add the config for %s", variable_name)
         raise KeyError(f"Missing required config key: {variable_name}")
     return variable
+    
+    
+if __name__ == "__main__":
+    print(env("ACCESS_TOKEN"))
+    print(config("BASE_URL"))

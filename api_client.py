@@ -2,11 +2,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-import logging
 from tools import env, config
 
-logging.basicConfig(filename=config("LOG_FILE"), encoding="utf-8", level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 def _build_session() -> requests.Session:
     """Create a requests Session with automatic retries for transient errors."""
@@ -39,12 +36,11 @@ class StarlingClient:
             "Content-Type": "application/json",
         }
 
-    def __call__(self, endpoint: str, body: dict | None = None, method: str = "GET"):
+    def __call__(self, endpoint: str, body: dict | None = None,params: dict | None = None, method: str = "GET"):
         """Make a call to the Starling API."""
     
         url = f"{self.base_url}{endpoint}"
-        print(self.access_token)
-        response = _session.request(method, url, headers=self._headers, json=body)
+        response = _session.request(method, url, headers=self._headers, json=body, params=params)
 
         match response.status_code:
             case 200:
@@ -52,33 +48,31 @@ class StarlingClient:
 
             case 202:
                 data = response.json()
-                logger.info("Request accepted, polling data: %s", data)
+                print("Request accepted, polling data: %s", data)
                 return None
 
             case 204:
-                logger.info("No content returned from %s", endpoint)
+                print("No content returned from %s", endpoint)
                 return None
 
             case 400:
-                logger.error("Bad request to %s: %s", endpoint, response.text)
+                print("Bad request to %s: %s", endpoint, response.text)
                 raise ValueError(f"Bad request: {response.text}")
 
             case 401:
-                logger.error("Invalid authentication credentials")
+                print("Invalid authentication credentials")
                 raise PermissionError("Unauthorized: check your access token")
 
             case 403:
-                logger.error(
-                    "Forbidden: token may be expired or lack scope for %s", endpoint
-                )
+                print("Forbidden: token may be expired or lack scope for %s", endpoint)
                 raise PermissionError(f"Forbidden: {response.text}")
 
             case 404:
-                logger.error("Resource not found: %s", endpoint)
+                print("Resource not found: %s", endpoint)
                 raise FileNotFoundError(f"Not found: {url}")
 
             case _ if response.status_code >= 500:
-                logger.error(
+                print(
                     "Starling server error %s: %s", response.status_code, response.text
                 )
                 raise ConnectionError(
@@ -86,7 +80,7 @@ class StarlingClient:
                 )
 
             case _:
-                logger.error(
+                print(
                     "Unexpected status %s: %s", response.status_code, response.text
                 )
                 raise Exception(
