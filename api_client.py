@@ -1,8 +1,12 @@
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from tools import env 
 
+import logging
+from tools import env, config
+
+logging.basicConfig(filename=config("LOG_FILE"), encoding="utf-8", level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def _build_session() -> requests.Session:
     """Create a requests Session with automatic retries for transient errors."""
@@ -17,15 +21,16 @@ def _build_session() -> requests.Session:
     session.mount("https://", adapter)
     return session
 
+
 _session = _build_session()
+
 
 class StarlingClient:
     """Thin wrapper around the Starling Bank API v2."""
 
     def __init__(self):
         self.access_token = env("ACCESS_TOKEN")
-        self.account_uid = env("ACCOUNT_UUID")
-        self.base_url = env("BASE_URL")
+        self.base_url = config("BASE_URL")
 
     @property
     def _headers(self) -> dict:
@@ -34,25 +39,11 @@ class StarlingClient:
             "Content-Type": "application/json",
         }
 
-    def call(self, endpoint: str, body: dict | None = None, method: str = "POST") -> dict | None:
-        """Make a call to the Starling API.
-
-        Args:
-            endpoint: API endpoint path relative to /account/{account_uid}/.
-            body: Optional request body (serialised as JSON).
-            method: HTTP method (default: POST).
-
-        Returns:
-            Parsed JSON dict on success, or None for 202/204 responses.
-
-        Raises:
-            ValueError: 400 Bad Request.
-            PermissionError: 401 Unauthorized or 403 Forbidden.
-            FileNotFoundError: 404 Not Found.
-            ConnectionError: 5xx Server Error.
-            Exception: Any other unexpected status code.
-        """
-        url = f"{self.base_url}/account/{self.account_uid}{endpoint}"
+    def __call__(self, endpoint: str, body: dict | None = None, method: str = "GET"):
+        """Make a call to the Starling API."""
+    
+        url = f"{self.base_url}{endpoint}"
+        print(self.access_token)
         response = _session.request(method, url, headers=self._headers, json=body)
 
         match response.status_code:
@@ -77,7 +68,9 @@ class StarlingClient:
                 raise PermissionError("Unauthorized: check your access token")
 
             case 403:
-                logger.error("Forbidden: token may be expired or lack scope for %s", endpoint)
+                logger.error(
+                    "Forbidden: token may be expired or lack scope for %s", endpoint
+                )
                 raise PermissionError(f"Forbidden: {response.text}")
 
             case 404:
@@ -85,10 +78,22 @@ class StarlingClient:
                 raise FileNotFoundError(f"Not found: {url}")
 
             case _ if response.status_code >= 500:
-                logger.error("Starling server error %s: %s", response.status_code, response.text)
-                raise ConnectionError(f"Server error {response.status_code}: {response.text}")
+                logger.error(
+                    "Starling server error %s: %s", response.status_code, response.text
+                )
+                raise ConnectionError(
+                    f"Server error {response.status_code}: {response.text}"
+                )
 
             case _:
-                logger.error("Unexpected status %s: %s", response.status_code, response.text)
-                raise Exception(f"Unexpected error {response.status_code}: {response.text}")
+                logger.error(
+                    "Unexpected status %s: %s", response.status_code, response.text
+                )
+                raise Exception(
+                    f"Unexpected error {response.status_code}: {response.text}"
+                )
 
+
+if __name__ == "__main__":
+    api = StarlingClient()
+    print(api("/api/v2/accounts"))
